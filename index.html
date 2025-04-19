@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Boyzz Sneakerverse</title>
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1, 6);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const light = new THREE.PointLight(0x00ffff, 2);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040));
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    const loader = new THREE.GLTFLoader();
+    const shoes = [];
+
+    loader.load('shoe.glb', function (gltf) {
+      for (let i = -2; i <= 2; i += 1) {
+        const model = gltf.scene.clone();
+        model.position.set(i * 1.5, 0, 0);
+        scene.add(model);
+        shoes.push(model);
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      shoes.forEach((shoe, idx) => {
+        shoe.rotation.y += 0.01;
+        shoe.position.y = Math.sin(Date.now() * 0.002 + idx) * 0.1;
+      });
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
